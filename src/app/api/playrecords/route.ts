@@ -41,15 +41,18 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // 从 cookie 获取用户信息
     const authInfo = getAuthInfoFromCookie(request);
     if (!authInfo || !authInfo.username) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const config = await getConfig();
-    if (config.UserConfig.Users) {
-      // 检查用户是否被封禁
+    let config;
+    try {
+      config = await getConfig();
+    } catch (e) {
+      return NextResponse.json({ error: `getConfig failed: ${(e as Error).message}` }, { status: 500 });
+    }
+    if (config && config.UserConfig && config.UserConfig.Users) {
       const user = config.UserConfig.Users.find(
         (u) => u.username === authInfo.username
       );
@@ -58,7 +61,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return NextResponse.json({ error: `json parse failed: ${(e as Error).message}` }, { status: 500 });
+    }
     const { key, record }: { key: string; record: PlayRecord } = body;
 
     if (!key || !record) {
