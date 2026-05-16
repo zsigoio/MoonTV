@@ -2,7 +2,7 @@
 
 'use client';
 
-import { Clover, Film, Home, Menu, Search, Star, Tv } from 'lucide-react';
+import { Clover, Film, Home, Menu, Search, Star, Tv, Youtube } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -32,8 +32,9 @@ const Logo = () => {
   return (
     <Link
       href='/'
-      className='flex items-center justify-center h-16 select-none hover:opacity-80 transition-opacity duration-200'
+      className='flex items-center justify-center h-16 gap-2 select-none hover:opacity-80 transition-opacity duration-200'
     >
+      <Youtube className='h-6 w-6 text-red-600' />
       <span className='text-2xl font-bold text-green-600 tracking-tight'>
         {siteName}
       </span>

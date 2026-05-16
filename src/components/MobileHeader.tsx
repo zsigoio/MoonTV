@@ -1,5 +1,6 @@
 'use client';
 
+import { Youtube } from 'lucide-react';
 import Link from 'next/link';
 
 import { BackButton } from './BackButton';
@@ -32,8 +33,9 @@ const MobileHeader = ({ showBackButton = false }: MobileHeaderProps) => {
       <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
         <Link
           href='/'
-          className='text-2xl font-bold text-green-600 tracking-tight hover:opacity-80 transition-opacity'
+          className='flex items-center gap-1.5 text-2xl font-bold text-green-600 tracking-tight hover:opacity-80 transition-opacity'
         >
+          <Youtube className='h-5 w-5 text-red-600' />
           {siteName}
         </Link>
       </div>
