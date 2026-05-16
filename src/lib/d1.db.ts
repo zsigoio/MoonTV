@@ -117,6 +117,10 @@ export class D1Storage implements IStorage {
           outro_time INTEGER NOT NULL DEFAULT 0,
           UNIQUE(username, source, id_video)
         );
+        CREATE INDEX IF NOT EXISTS idx_play_records_username ON play_records(username);
+        CREATE INDEX IF NOT EXISTS idx_favorites_username ON favorites(username);
+        CREATE INDEX IF NOT EXISTS idx_search_history_username ON search_history(username);
+        CREATE INDEX IF NOT EXISTS idx_skip_configs_username ON skip_configs(username);
       `);
     } catch (err) {
       console.error('Failed to ensure D1 tables:', err);
@@ -530,7 +534,7 @@ export class D1Storage implements IStorage {
       return JSON.parse(result.config) as AdminConfig;
     } catch (err) {
       console.error('Failed to get admin config:', err);
-      throw err;
+      return null;
     }
   }
 
@@ -545,7 +549,6 @@ export class D1Storage implements IStorage {
         .run();
     } catch (err) {
       console.error('Failed to set admin config:', err);
-      throw err;
     }
   }
 
