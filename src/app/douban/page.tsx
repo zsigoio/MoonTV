@@ -184,13 +184,18 @@ function DoubanPageClient() {
       setLoading(true);
       let data: DoubanResult;
 
-      if (type === 'custom') {
-        // 自定义分类模式：根据选中的一级和二级选项获取对应的分类
+      if (type === 'anime') {
+        data = await getDoubanCategories({
+          kind: 'tv',
+          category: 'tv',
+          type: 'tv_animation',
+          pageLimit: 25,
+          pageStart: 0,
+        });
+      } else if (type === 'custom') {
         const selectedCategory = customCategories.find(
-          (cat) =>
-            cat.type === primarySelection && cat.query === secondarySelection
+          (cat) => cat.type === primarySelection && cat.query === secondarySelection
         );
-
         if (selectedCategory) {
           data = await getDoubanList({
             tag: selectedCategory.query,
@@ -203,23 +208,14 @@ function DoubanPageClient() {
         }
       } else if (primarySelection === '全部') {
         data = await getDoubanRecommands({
-          kind:
-            type === 'show' || type === 'anime'
-              ? 'tv'
-              : (type as 'tv' | 'movie'),
+          kind: type === 'show' ? 'tv' : (type as 'tv' | 'movie'),
           pageLimit: 25,
           pageStart: currentPage * 25,
-          category: multiLevelValues.type
-            ? (multiLevelValues.type as string)
-            : '',
+          category: multiLevelValues.type ? (multiLevelValues.type as string) : '',
           format: type === 'show' ? '综艺' : type === 'tv' ? '电视剧' : '',
-          region: multiLevelValues.region
-            ? (multiLevelValues.region as string)
-            : '',
+          region: multiLevelValues.region ? (multiLevelValues.region as string) : '',
           year: multiLevelValues.year ? (multiLevelValues.year as string) : '',
-          platform: multiLevelValues.platform
-            ? (multiLevelValues.platform as string)
-            : '',
+          platform: multiLevelValues.platform ? (multiLevelValues.platform as string) : '',
           sort: multiLevelValues.sort ? (multiLevelValues.sort as string) : '',
         });
       } else {
@@ -291,14 +287,20 @@ function DoubanPageClient() {
           setIsLoadingMore(true);
 
           let data: DoubanResult;
-          if (type === 'custom') {
-            // 自定义分类模式：根据选中的一级和二级选项获取对应的分类
+          if (type === 'anime') {
+            data = await getDoubanCategories({
+              kind: 'tv',
+              category: 'tv',
+              type: 'tv_animation',
+              pageLimit: 25,
+              pageStart: currentPage * 25,
+            });
+          } else if (type === 'custom') {
             const selectedCategory = customCategories.find(
               (cat) =>
                 cat.type === primarySelection &&
                 cat.query === secondarySelection
             );
-
             if (selectedCategory) {
               data = await getDoubanList({
                 tag: selectedCategory.query,
@@ -526,12 +528,10 @@ function DoubanPageClient() {
           </div>
 
           {/* 选择器组件 */}
-          {type !== 'custom' ? (
+          {type !== 'custom' && type !== 'anime' ? (
             <div className='bg-white/60 dark:bg-gray-800/40 rounded-2xl p-4 sm:p-6 border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-sm'>
               <DoubanSelector
-                type={
-                  type === 'anime' ? 'tv' : (type as 'movie' | 'tv' | 'show')
-                }
+                type={type as 'movie' | 'tv' | 'show'}
                 primarySelection={primarySelection}
                 secondarySelection={secondarySelection}
                 onPrimaryChange={handlePrimaryChange}

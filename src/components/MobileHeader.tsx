@@ -35,7 +35,7 @@ const MobileHeader = ({ showBackButton = false }: MobileHeaderProps) => {
           href='/'
           className='flex items-center gap-1.5 text-2xl font-bold text-blue-600 tracking-tight hover:opacity-80 transition-opacity'
         >
-          <Youtube className='h-5 w-5 text-red-600' />
+          <Youtube className='h-5 w-5 text-blue-600' />
           {siteName}
         </Link>
       </div>

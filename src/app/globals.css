@@ -63,11 +63,25 @@ html:not(.dark) body {
 
 /* 视频卡片悬停效果 */
 .video-card-hover {
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .video-card-hover:hover {
-  transform: scale(1.05);
+  transform: scale(1.03);
+}
+
+/* 卡片阴影 */
+.card-shadow {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  transition: box-shadow 0.3s ease;
+}
+.card-shadow:hover {
+  box-shadow: 0 10px 25px rgba(59,130,246,0.1), 0 4px 10px rgba(59,130,246,0.05);
+}
+
+/* 蓝调渐变背景 */
+.blue-gradient {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
 }
 
 /* 渐变遮罩 */
