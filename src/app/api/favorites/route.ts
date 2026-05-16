@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     console.error('保存收藏失败', err);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: (err as Error).message },
       { status: 500 }
     );
   }
