@@ -110,12 +110,54 @@
 
 **使用 `@cloudflare/next-on-pages` 将项目部署到 Cloudflare Pages，支持 D1 数据库存储播放记录和收藏。**
 
-#### 前置准备
+#### 1. 创建 D1 数据库
 
-- 安装 [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/)：
-  ```bash
-  npm install -g wrangler
-  ```
+```bash
+# 安装 Wrangler CLI（如未安装）
+npm install -g wrangler
+
+# 登录
+wrangler login
+
+# 创建 D1 数据库
+wrangler d1 create moontv-db
+```
+
+创建成功后记下输出的 `database_id`。
+
+#### 2. 初始化 D1 表结构
+
+```bash
+wrangler d1 execute moontv-db --file=D1初始化.md
+```
+
+#### 3. 部署到 Cloudflare Pages
+
+在 Cloudflare Pages 控制台 **创建 → Pages → 连接到 Git**，选择 Fork 后的仓库。
+
+**构建设置：**
+
+| 配置项 | 值 |
+|---|---|
+| 框架预设 | 无 |
+| 构建命令 | `pnpm install --frozen-lockfile && pnpm pages:build` |
+| 构建输出目录 | `.vercel/output/static` |
+
+**环境变量（生产环境）：**
+
+| 变量 | 值 | 说明 |
+|------|-----|------|
+| `NEXT_PUBLIC_STORAGE_TYPE` | `d1` | 使用 D1 存储 |
+| `USERNAME` | `admin` | 管理员账号 |
+| `PASSWORD` | `your_password` | 管理员密码 |
+| `NEXT_PUBLIC_ENABLE_REGISTER` | `true` | 是否开放注册 |
+
+**函数设置：**
+
+1. **设置 → 函数 → 兼容性标志**：添加 `nodejs_compat`
+2. **设置 → 函数 → D1 数据库绑定**：添加绑定，变量名 `DB`，选择 `moontv-db`
+
+之后每次 Push 到 `main` 分支将自动触发部署。
 - 在 Cloudflare 仪表盘获取你的 **Account ID**。
 
 #### 1. 创建 D1 数据库
