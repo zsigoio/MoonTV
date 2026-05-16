@@ -49,6 +49,9 @@ export class D1Storage implements IStorage {
   private async getDatabase(): Promise<D1Database> {
     if (!this.db) {
       this.db = getD1Database();
+      if (!this.db) {
+        throw new Error('D1 binding (process.env.DB) is not available');
+      }
     }
     if (!this.initialized) {
       await this.ensureTables();
@@ -60,7 +63,7 @@ export class D1Storage implements IStorage {
   private async ensureTables(): Promise<void> {
     try {
       const db = this.db!;
-      const statements = [
+      const tables = [
         `CREATE TABLE IF NOT EXISTS users (
           username TEXT PRIMARY KEY,
           password TEXT NOT NULL,
@@ -116,12 +119,10 @@ export class D1Storage implements IStorage {
           outro_time INTEGER NOT NULL DEFAULT 0,
           UNIQUE(username, source, id_video)
         )`,
-        `CREATE INDEX IF NOT EXISTS idx_play_records_username ON play_records(username)`,
-        `CREATE INDEX IF NOT EXISTS idx_favorites_username ON favorites(username)`,
-        `CREATE INDEX IF NOT EXISTS idx_search_history_username ON search_history(username)`,
-        `CREATE INDEX IF NOT EXISTS idx_skip_configs_username ON skip_configs(username)`,
       ];
-      await db.batch(statements.map((sql) => db.prepare(sql)));
+      for (const sql of tables) {
+        await db.prepare(sql).run();
+      }
       this.initialized = true;
     } catch (err) {
       console.error('Failed to ensure D1 tables:', err);
