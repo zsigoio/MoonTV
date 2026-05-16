@@ -92,7 +92,6 @@ export class D1Storage implements IStorage {
           year TEXT NOT NULL,
           total_episodes INTEGER NOT NULL,
           save_time INTEGER NOT NULL,
-          search_title TEXT,
           UNIQUE(username, key)
         );
         CREATE TABLE IF NOT EXISTS search_history (
@@ -281,8 +280,8 @@ export class D1Storage implements IStorage {
         .prepare(
           `
           INSERT OR REPLACE INTO favorites 
-          (username, key, title, source_name, cover, year, total_episodes, save_time, search_title)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          (username, key, title, source_name, cover, year, total_episodes, save_time)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `
         )
         .bind(
@@ -294,7 +293,6 @@ export class D1Storage implements IStorage {
           favorite.year,
           favorite.total_episodes,
           favorite.save_time,
-          favorite.search_title || null
         )
         .run();
     } catch (err) {
