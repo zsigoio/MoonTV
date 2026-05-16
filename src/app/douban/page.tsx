@@ -41,13 +41,14 @@ function DoubanPageClient() {
   // 选择器状态 - 完全独立，不依赖URL参数
   const [primarySelection, setPrimarySelection] = useState<string>(() => {
     if (type === 'movie') return '热门';
-    if (type === 'tv' || type === 'show') return '最近热门';
+    if (type === 'tv' || type === 'show' || type === 'anime') return '最近热门';
     return '';
   });
   const [secondarySelection, setSecondarySelection] = useState<string>(() => {
     if (type === 'movie') return '全部';
     if (type === 'tv') return 'tv';
     if (type === 'show') return 'show';
+    if (type === 'anime') return 'tv_animation';
     return '全部';
   });
 
@@ -122,6 +123,9 @@ function DoubanPageClient() {
       } else if (type === 'show') {
         setPrimarySelection('最近热门');
         setSecondarySelection('show');
+      } else if (type === 'anime') {
+        setPrimarySelection('最近热门');
+        setSecondarySelection('tv_animation');
       } else {
         setPrimarySelection('');
         setSecondarySelection('全部');
@@ -151,11 +155,11 @@ function DoubanPageClient() {
   // 生成API请求参数的辅助函数
   const getRequestParams = useCallback(
     (pageStart: number) => {
-      // 当type为tv或show时，kind统一为'tv'，category使用type本身
-      if (type === 'tv' || type === 'show') {
+      // 当type为tv、show或anime时，kind统一为'tv'
+      if (type === 'tv' || type === 'show' || type === 'anime') {
         return {
           kind: 'tv' as const,
-          category: type,
+          category: type === 'anime' ? 'tv' : type,
           type: secondarySelection,
           pageLimit: 25,
           pageStart,
@@ -199,7 +203,10 @@ function DoubanPageClient() {
         }
       } else if (primarySelection === '全部') {
         data = await getDoubanRecommands({
-          kind: type === 'show' ? 'tv' : (type as 'tv' | 'movie'),
+          kind:
+            type === 'show' || type === 'anime'
+              ? 'tv'
+              : (type as 'tv' | 'movie'),
           pageLimit: 25,
           pageStart: currentPage * 25,
           category: multiLevelValues.type
@@ -304,13 +311,21 @@ function DoubanPageClient() {
             }
           } else if (primarySelection === '全部') {
             data = await getDoubanRecommands({
-              kind: type === 'show' ? 'tv' : (type as 'tv' | 'movie'),
+              kind:
+                type === 'show' || type === 'anime'
+                  ? 'tv'
+                  : (type as 'tv' | 'movie'),
               pageLimit: 25,
               pageStart: currentPage * 25,
               category: multiLevelValues.type
                 ? (multiLevelValues.type as string)
                 : '',
-              format: type === 'show' ? '综艺' : type === 'tv' ? '电视剧' : '',
+              format:
+                type === 'show'
+                  ? '综艺'
+                  : type === 'tv' || type === 'anime'
+                  ? '电视剧'
+                  : '',
               region: multiLevelValues.region
                 ? (multiLevelValues.region as string)
                 : '',
@@ -414,13 +429,18 @@ function DoubanPageClient() {
             setPrimarySelection(value);
           }
         } else {
-          // 电视剧和综艺切换到"最近热门"时，重置二级分类为第一个选项
-          if ((type === 'tv' || type === 'show') && value === '最近热门') {
+          // 电视剧/综艺/动漫切换到"最近热门"时，重置二级分类
+          if (
+            (type === 'tv' || type === 'show' || type === 'anime') &&
+            value === '最近热门'
+          ) {
             setPrimarySelection(value);
             if (type === 'tv') {
               setSecondarySelection('tv');
             } else if (type === 'show') {
               setSecondarySelection('show');
+            } else if (type === 'anime') {
+              setSecondarySelection('tv_animation');
             }
           } else {
             setPrimarySelection(value);
@@ -476,6 +496,8 @@ function DoubanPageClient() {
       ? '电视剧'
       : type === 'show'
       ? '综艺'
+      : type === 'anime'
+      ? '动漫'
       : '自定义';
   };
 
@@ -507,7 +529,9 @@ function DoubanPageClient() {
           {type !== 'custom' ? (
             <div className='bg-white/60 dark:bg-gray-800/40 rounded-2xl p-4 sm:p-6 border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-sm'>
               <DoubanSelector
-                type={type as 'movie' | 'tv' | 'show'}
+                type={
+                  type === 'anime' ? 'tv' : (type as 'movie' | 'tv' | 'show')
+                }
                 primarySelection={primarySelection}
                 secondarySelection={secondarySelection}
                 onPrimaryChange={handlePrimaryChange}
@@ -545,7 +569,7 @@ function DoubanPageClient() {
                       douban_id={Number(item.id)}
                       rate={item.rate}
                       year={item.year}
-                      type={type === 'movie' ? 'movie' : ''} // 电影类型严格控制，tv 不控
+                      type={type === 'movie' ? 'movie' : ''}
                     />
                   </div>
                 ))}
