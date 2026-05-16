@@ -412,9 +412,15 @@ async function fetchWithAuth(
 ): Promise<Response> {
   const res = await fetch(url, options);
   if (!res.ok) {
+    let detail = '';
+    try {
+      const body = await res.json();
+      detail = body.error || body.details || '';
+    } catch {
+      // ignore parse error
+    }
     // 如果是 401 未授权，跳转到登录页面
     if (res.status === 401) {
-      // 调用 logout 接口
       try {
         await fetch('/api/logout', {
           method: 'POST',
@@ -429,7 +435,7 @@ async function fetchWithAuth(
       window.location.href = loginUrl.toString();
       throw new Error('用户未授权，已跳转到登录页面');
     }
-    throw new Error(`请求 ${url} 失败: ${res.status}`);
+    throw new Error(`请求 ${url} 失败: ${res.status}${detail ? ` - ${detail}` : ''}`);
   }
   return res;
 }
