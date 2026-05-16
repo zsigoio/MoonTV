@@ -324,7 +324,7 @@ export const UserMenu: React.FC = () => {
                     ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
                     : (authInfo?.role || 'user') === 'admin'
                     ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                    : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                    : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
                 }`}
               >
                 {getRoleText(authInfo?.role || 'user')}
@@ -407,7 +407,7 @@ export const UserMenu: React.FC = () => {
                       updateStatus === UpdateStatus.HAS_UPDATE
                         ? 'bg-yellow-500'
                         : updateStatus === UpdateStatus.NO_UPDATE
-                        ? 'bg-green-400'
+                        ? 'bg-blue-400'
                         : ''
                     }`}
                   ></div>
@@ -473,7 +473,7 @@ export const UserMenu: React.FC = () => {
                   checked={defaultAggregateSearch}
                   onChange={(e) => handleAggregateToggle(e.target.checked)}
                 />
-                <div className='w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors dark:bg-gray-600'></div>
+                <div className='w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-blue-500 transition-colors dark:bg-gray-600'></div>
                 <div className='absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5'></div>
               </div>
             </label>
@@ -497,7 +497,7 @@ export const UserMenu: React.FC = () => {
                   checked={enableOptimization}
                   onChange={(e) => handleOptimizationToggle(e.target.checked)}
                 />
-                <div className='w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors dark:bg-gray-600'></div>
+                <div className='w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-blue-500 transition-colors dark:bg-gray-600'></div>
                 <div className='absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5'></div>
               </div>
             </label>
@@ -529,7 +529,7 @@ export const UserMenu: React.FC = () => {
                   onClick={() => handleDoubanProxyTypeChange(type)}
                   className={`px-2 py-1.5 text-xs rounded-md border transition-colors text-left ${
                     doubanProxyType === type
-                      ? 'bg-green-50 border-green-300 text-green-700 dark:bg-green-900/20 dark:border-green-600 dark:text-green-400'
+                      ? 'bg-blue-50 border-blue-300 text-blue-700 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-400'
                       : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700'
                   }`}
                 >
@@ -573,7 +573,7 @@ export const UserMenu: React.FC = () => {
                   onClick={() => handleImageProxyTypeChange(type)}
                   className={`px-2 py-1.5 text-xs rounded-md border transition-colors text-left ${
                     imageProxyType === type
-                      ? 'bg-green-50 border-green-300 text-green-700 dark:bg-green-900/20 dark:border-green-600 dark:text-green-400'
+                      ? 'bg-blue-50 border-blue-300 text-blue-700 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-400'
                       : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700'
                   }`}
                 >
@@ -639,7 +639,7 @@ export const UserMenu: React.FC = () => {
             </label>
             <input
               type='password'
-              className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400'
+              className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400'
               placeholder='请输入新密码'
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
@@ -654,7 +654,7 @@ export const UserMenu: React.FC = () => {
             </label>
             <input
               type='password'
-              className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400'
+              className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400'
               placeholder='请再次输入新密码'
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -681,7 +681,7 @@ export const UserMenu: React.FC = () => {
           </button>
           <button
             onClick={handleSubmitChangePassword}
-            className='flex-1 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+            className='flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
             disabled={passwordLoading || !newPassword || !confirmPassword}
           >
             {passwordLoading ? '修改中...' : '确认修改'}
