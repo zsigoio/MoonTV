@@ -44,12 +44,83 @@ function getD1Database(): D1Database {
 
 export class D1Storage implements IStorage {
   private db: D1Database | null = null;
+  private initialized = false;
 
   private async getDatabase(): Promise<D1Database> {
     if (!this.db) {
       this.db = getD1Database();
     }
+    if (!this.initialized) {
+      await this.ensureTables();
+      this.initialized = true;
+    }
     return this.db;
+  }
+
+  private async ensureTables(): Promise<void> {
+    try {
+      const db = this.db!;
+      await db.exec(`
+        CREATE TABLE IF NOT EXISTS users (
+          username TEXT PRIMARY KEY,
+          password TEXT NOT NULL,
+          created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+        );
+        CREATE TABLE IF NOT EXISTS play_records (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username TEXT NOT NULL,
+          key TEXT NOT NULL,
+          title TEXT NOT NULL,
+          source_name TEXT NOT NULL,
+          cover TEXT NOT NULL,
+          year TEXT NOT NULL,
+          index_episode INTEGER NOT NULL,
+          total_episodes INTEGER NOT NULL,
+          play_time INTEGER NOT NULL,
+          total_time INTEGER NOT NULL,
+          save_time INTEGER NOT NULL,
+          search_title TEXT,
+          UNIQUE(username, key)
+        );
+        CREATE TABLE IF NOT EXISTS favorites (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username TEXT NOT NULL,
+          key TEXT NOT NULL,
+          title TEXT NOT NULL,
+          source_name TEXT NOT NULL,
+          cover TEXT NOT NULL,
+          year TEXT NOT NULL,
+          total_episodes INTEGER NOT NULL,
+          save_time INTEGER NOT NULL,
+          search_title TEXT,
+          UNIQUE(username, key)
+        );
+        CREATE TABLE IF NOT EXISTS search_history (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username TEXT NOT NULL,
+          keyword TEXT NOT NULL,
+          created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+          UNIQUE(username, keyword)
+        );
+        CREATE TABLE IF NOT EXISTS admin_config (
+          id INTEGER PRIMARY KEY DEFAULT 1,
+          config TEXT NOT NULL,
+          updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+        );
+        CREATE TABLE IF NOT EXISTS skip_configs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username TEXT NOT NULL,
+          source TEXT NOT NULL,
+          id_video TEXT NOT NULL,
+          enable INTEGER NOT NULL DEFAULT 0,
+          intro_time INTEGER NOT NULL DEFAULT 0,
+          outro_time INTEGER NOT NULL DEFAULT 0,
+          UNIQUE(username, source, id_video)
+        );
+      `);
+    } catch (err) {
+      console.error('Failed to ensure D1 tables:', err);
+    }
   }
 
   // 播放记录相关
@@ -206,8 +277,8 @@ export class D1Storage implements IStorage {
         .prepare(
           `
           INSERT OR REPLACE INTO favorites 
-          (username, key, title, source_name, cover, year, total_episodes, save_time)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          (username, key, title, source_name, cover, year, total_episodes, save_time, search_title)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `
         )
         .bind(
@@ -218,7 +289,8 @@ export class D1Storage implements IStorage {
           favorite.cover,
           favorite.year,
           favorite.total_episodes,
-          favorite.save_time
+          favorite.save_time,
+          favorite.search_title || null
         )
         .run();
     } catch (err) {
