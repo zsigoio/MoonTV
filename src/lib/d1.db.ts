@@ -60,13 +60,13 @@ export class D1Storage implements IStorage {
   private async ensureTables(): Promise<void> {
     try {
       const db = this.db!;
-      await db.exec(`
-        CREATE TABLE IF NOT EXISTS users (
+      const statements = [
+        `CREATE TABLE IF NOT EXISTS users (
           username TEXT PRIMARY KEY,
           password TEXT NOT NULL,
           created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
-        );
-        CREATE TABLE IF NOT EXISTS play_records (
+        )`,
+        `CREATE TABLE IF NOT EXISTS play_records (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           username TEXT NOT NULL,
           key TEXT NOT NULL,
@@ -81,8 +81,8 @@ export class D1Storage implements IStorage {
           save_time INTEGER NOT NULL,
           search_title TEXT,
           UNIQUE(username, key)
-        );
-        CREATE TABLE IF NOT EXISTS favorites (
+        )`,
+        `CREATE TABLE IF NOT EXISTS favorites (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           username TEXT NOT NULL,
           key TEXT NOT NULL,
@@ -93,20 +93,20 @@ export class D1Storage implements IStorage {
           total_episodes INTEGER NOT NULL,
           save_time INTEGER NOT NULL,
           UNIQUE(username, key)
-        );
-        CREATE TABLE IF NOT EXISTS search_history (
+        )`,
+        `CREATE TABLE IF NOT EXISTS search_history (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           username TEXT NOT NULL,
           keyword TEXT NOT NULL,
           created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
           UNIQUE(username, keyword)
-        );
-        CREATE TABLE IF NOT EXISTS admin_config (
+        )`,
+        `CREATE TABLE IF NOT EXISTS admin_config (
           id INTEGER PRIMARY KEY DEFAULT 1,
           config TEXT NOT NULL,
           updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
-        );
-        CREATE TABLE IF NOT EXISTS skip_configs (
+        )`,
+        `CREATE TABLE IF NOT EXISTS skip_configs (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           username TEXT NOT NULL,
           source TEXT NOT NULL,
@@ -115,12 +115,14 @@ export class D1Storage implements IStorage {
           intro_time INTEGER NOT NULL DEFAULT 0,
           outro_time INTEGER NOT NULL DEFAULT 0,
           UNIQUE(username, source, id_video)
-        );
-        CREATE INDEX IF NOT EXISTS idx_play_records_username ON play_records(username);
-        CREATE INDEX IF NOT EXISTS idx_favorites_username ON favorites(username);
-        CREATE INDEX IF NOT EXISTS idx_search_history_username ON search_history(username);
-        CREATE INDEX IF NOT EXISTS idx_skip_configs_username ON skip_configs(username);
-      `);
+        )`,
+        `CREATE INDEX IF NOT EXISTS idx_play_records_username ON play_records(username)`,
+        `CREATE INDEX IF NOT EXISTS idx_favorites_username ON favorites(username)`,
+        `CREATE INDEX IF NOT EXISTS idx_search_history_username ON search_history(username)`,
+        `CREATE INDEX IF NOT EXISTS idx_skip_configs_username ON skip_configs(username)`,
+      ];
+      await db.batch(statements.map((sql) => db.prepare(sql)));
+      this.initialized = true;
     } catch (err) {
       console.error('Failed to ensure D1 tables:', err);
     }
