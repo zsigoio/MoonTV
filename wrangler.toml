@@ -3,21 +3,3 @@ compatibility_date = "2024-12-01"
 compatibility_flags = ["nodejs_compat"]
 
 pages_build_output_dir = ".vercel/output/static"
-
-# Cloudflare Pages 的 D1 绑定请在 Dashboard 中配置:
-#   Pages 项目 → 设置 → 绑定 → D1 数据库 → 变量名 DB
-# 
-# 本地开发时可在此填入 database_id (不会提交到仓库):
-#   npx wrangler d1 create moontv-db
-#   npx wrangler d1 execute moontv-db --file=D1初始化.md
-# 然后取消下方注释并填入 ID
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "moontv-db"
-# database_id = ""
-
-# 环境变量
-[vars]
-NEXT_PUBLIC_STORAGE_TYPE = "d1"
-NEXT_PUBLIC_ENABLE_REGISTER = "true"
-NEXT_PUBLIC_DISABLE_YELLOW_FILTER = "false"

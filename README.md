@@ -135,17 +135,15 @@ wrangler d1 create moontv-db
 Database ID: <your-database-id>
 ```
 
-将输出的 `database_id` 填入本地 `wrangler.toml`（**不要提交到公开仓库**）：
+在 Cloudflare Pages 项目 **设置 → 函数 → D1 数据库绑定** 中添加：
 
-```toml
-# 取消注释并填入 ID（仅本地开发用）
-[[d1_databases]]
-binding = "DB"
-database_name = "moontv-db"
-database_id = "<your-database-id>"
-```
+| 配置项 | 值 |
+|---|---|
+| 绑定类型 | D1 数据库 |
+| 变量名称 | `DB` |
+| D1 数据库 | 选择刚创建的 `moontv-db` |
 
-> ⚠️ **注意**：生产环境的 D1 绑定请在 Cloudflare Pages Dashboard 中配置（设置 → 绑定），不要在公开仓库中暴露 `database_id`。
+> ⚠️ **注意**：`database_id` 请勿写入公开仓库，通过 Dashboard 绑定更安全。
 
 #### 2. 初始化 D1 表结构
 
@@ -168,16 +166,16 @@ pnpm pages:build
 npx wrangler pages deploy .vercel/output/static --project-name=moontv --commit-message="initial deploy"
 ```
 
-首次部署后，在 Cloudflare Pages 项目 **设置 → 环境变量** 中添加：
+在 Cloudflare Pages 项目 **设置 → 环境变量（生产环境）** 中添加：
 
-| 变量                          | 值              | 说明         |
-| ----------------------------- | --------------- | ------------ |
-| `NEXT_PUBLIC_STORAGE_TYPE`    | `d1`            | 使用 D1 存储 |
-| `USERNAME`                    | `admin`         | 管理员账号   |
-| `PASSWORD`                    | `your_password` | 管理员密码   |
-| `NEXT_PUBLIC_ENABLE_REGISTER` | `true`          | 是否开放注册 |
+| 变量 | 值 | 说明 |
+|------|-----|------|
+| `NEXT_PUBLIC_STORAGE_TYPE` | `d1` | 使用 D1 存储 |
+| `USERNAME` | `admin` | 管理员账号 |
+| `PASSWORD` | `your_password` | 管理员密码 |
+| `NEXT_PUBLIC_ENABLE_REGISTER` | `true` | 是否开放注册 |
 
-然后重试部署。
+同时添加 D1 绑定（**设置 → 函数 → D1 数据库绑定**）。然后重试部署。
 
 **方式二：连接 GitHub 仓库自动部署**
 
