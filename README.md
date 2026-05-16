@@ -161,8 +161,8 @@ wrangler d1 execute moontv-db --file=D1初始化.md
 # 安装依赖
 pnpm install
 
-# 构建
-npx @cloudflare/next-on-pages
+# 构建（会自动执行 next build + 转换为 Pages 格式）
+pnpm pages:build
 
 # 部署（首次需添加 --commit-message 参数）
 npx wrangler pages deploy .vercel/output/static --project-name=moontv --commit-message="initial deploy"
@@ -185,7 +185,7 @@ npx wrangler pages deploy .vercel/output/static --project-name=moontv --commit-m
 2. 选择 Fork 后的仓库，分支选 `main`
 3. 构建设置如下：
    - **框架预设**：无
-   - **构建命令**：`npx @cloudflare/next-on-pages`
+   - **构建命令**：`pnpm install --frozen-lockfile && pnpm pages:build`
    - **构建输出目录**：`.vercel/output/static`
    - **环境变量**：同上表
 4. 在 Pages 项目 **设置 → 函数 → 兼容性标志** 中添加 `nodejs_compat`
