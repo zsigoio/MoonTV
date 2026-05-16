@@ -31,7 +31,8 @@ ENV DOCKER_ENV=true
 # For Docker builds, force dynamic rendering to read runtime environment variables.
 RUN sed -i "/const inter = Inter({ subsets: \['latin'] });/a export const dynamic = 'force-dynamic';" src/app/layout.tsx
 
-# 生成生产构建
+# 生成生产构建（设置 NEXT_OUTPUT 以启用 standalone 模式）
+ENV NEXT_OUTPUT=standalone
 RUN pnpm run build
 
 # ---- 第 3 阶段：生成运行时镜像 ----
