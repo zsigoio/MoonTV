@@ -78,6 +78,10 @@
 
 ☑️：理论上支持，未测试
 
+✅：经测试支持
+
+☑️：理论上支持，未测试
+
 除 localstorage 方式外，其他方式都支持多账户、记录同步和管理页面
 
 ### Vercel 部署
@@ -102,29 +106,106 @@
 4. 设置环境变量 NEXT_PUBLIC_STORAGE_TYPE，值为 **upstash**；设置 USERNAME 和 PASSWORD 作为站长账号
 5. 重试部署
 
-### Cloudflare 部署（**不支持，详情请看置顶 issue**）
+### Cloudflare 部署
 
-~~**Cloudflare Pages 的环境变量尽量设置为密钥而非文本**~~
+**使用 `@cloudflare/next-on-pages` 将项目部署到 Cloudflare Pages，支持 D1 数据库存储播放记录和收藏。**
 
-#### ~~普通部署（localstorage）~~
+#### 前置准备
 
-~~1. **Fork** 本仓库到你的 GitHub 账户。~~
-~~2. 登陆 [Cloudflare](https://cloudflare.com)，点击 **计算（Workers）-> Workers 和 Pages**，点击创建~~
-~~3. 选择 Pages，导入现有的 Git 存储库，选择 Fork 后的仓库~~
-~~4. 构建命令填写 **pnpm install --frozen-lockfile && pnpm run pages:build**，预设框架为无，**构建输出目录**为 `.vercel/output/static`~~
-~~5. 保持默认设置完成首次部署。进入设置，将兼容性标志设置为 `nodejs_compat`，无需选择，直接粘贴~~
-~~6. 首次部署完成后进入设置，新增 PASSWORD 密钥（变量和机密下），而后重试部署。~~
-~~7. 如需自定义 `config.json`，请直接修改 Fork 后仓库中该文件。~~
-~~8. 每次 Push 到 `main` 分支将自动触发重新构建。~~
+- 安装 [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/)：
+  ```bash
+  npm install -g wrangler
+  ```
+- 在 Cloudflare 仪表盘获取你的 **Account ID**。
 
-#### ~~D1 支持~~
+#### 1. 创建 D1 数据库
 
-~~0. 完成普通部署并成功访问~~
-~~1. 点击 **存储和数据库 -> D1 SQL 数据库**，创建一个新的数据库，名称随意~~
-~~2. 进入刚创建的数据库，点击左上角的 Explore Data，将[D1 初始化](D1初始化.md) 中的内容粘贴到 Query 窗口后点击 **Run All**，等待运行完成~~
-~~3. 返回你的 pages 项目，进入 **设置 -> 绑定**，添加绑定 D1 数据库，选择你刚创建的数据库，变量名称填 **DB**~~
-~~4. 设置环境变量 NEXT_PUBLIC_STORAGE_TYPE，值为 **d1**；设置 USERNAME 和 PASSWORD 作为站长账号~~
-~~5. 重试部署~~
+```bash
+# 登录（如未登录）
+wrangler login
+
+# 创建 D1 数据库
+wrangler d1 create moontv-db
+```
+
+创建成功后，会输出类似以下内容：
+
+```
+✔ Successfully created DB 'moontv-db' in project
+Database ID: <your-database-id>
+```
+
+将输出的 `database_id` 填入本地 `wrangler.toml`（**不要提交到公开仓库**）：
+
+```toml
+# 取消注释并填入 ID（仅本地开发用）
+[[d1_databases]]
+binding = "DB"
+database_name = "moontv-db"
+database_id = "<your-database-id>"
+```
+
+> ⚠️ **注意**：生产环境的 D1 绑定请在 Cloudflare Pages Dashboard 中配置（设置 → 绑定），不要在公开仓库中暴露 `database_id`。
+
+#### 2. 初始化 D1 表结构
+
+```bash
+wrangler d1 execute moontv-db --file=D1初始化.md
+```
+
+#### 3. 部署到 Cloudflare Pages
+
+**方式一：通过 Wrangler 部署**
+
+```bash
+# 安装依赖
+pnpm install
+
+# 构建
+npx @cloudflare/next-on-pages
+
+# 部署（首次需添加 --commit-message 参数）
+npx wrangler pages deploy .vercel/output/static --project-name=moontv --commit-message="initial deploy"
+```
+
+首次部署后，在 Cloudflare Pages 项目 **设置 → 环境变量** 中添加：
+
+| 变量                          | 值              | 说明         |
+| ----------------------------- | --------------- | ------------ |
+| `NEXT_PUBLIC_STORAGE_TYPE`    | `d1`            | 使用 D1 存储 |
+| `USERNAME`                    | `admin`         | 管理员账号   |
+| `PASSWORD`                    | `your_password` | 管理员密码   |
+| `NEXT_PUBLIC_ENABLE_REGISTER` | `true`          | 是否开放注册 |
+
+然后重试部署。
+
+**方式二：连接 GitHub 仓库自动部署**
+
+1. 在 Cloudflare Pages 控制台点击 **创建 → Pages → 连接到 Git**
+2. 选择 Fork 后的仓库，分支选 `main`
+3. 构建设置如下：
+   - **框架预设**：无
+   - **构建命令**：`npx @cloudflare/next-on-pages`
+   - **构建输出目录**：`.vercel/output/static`
+   - **环境变量**：同上表
+4. 在 Pages 项目 **设置 → 函数 → 兼容性标志** 中添加 `nodejs_compat`
+5. 在 Pages 项目 **设置 → 绑定 → 添加**：
+   - **绑定类型**：D1 数据库
+   - **变量名称**：`DB`
+   - **D1 数据库**：选择 `moontv-db`
+6. 点击 **保存并部署**
+
+之后每次 Push 到 `main` 分支将自动触发部署。
+
+#### D1 本地开发
+
+```bash
+# 在本地启动开发服务器时绑定 D1
+npx wrangler d1 execute moontv-db --local --file=D1初始化.md
+
+# 运行开发服务器
+NEXT_PUBLIC_STORAGE_TYPE=d1 npx next dev
+```
 
 ### Docker 部署
 
@@ -219,8 +300,8 @@ networks:
 | UPSTASH_TOKEN                     | upstash redis 连接 token                     | 连接 token                       | 空                                                                                                                         |
 | NEXT_PUBLIC_ENABLE_REGISTER       | 是否开放注册，仅在非 localstorage 部署时生效 | true / false                     | false                                                                                                                      |
 | NEXT_PUBLIC_SEARCH_MAX_PAGE       | 搜索接口可拉取的最大页数                     | 1-50                             | 5                                                                                                                          |
-| NEXT_PUBLIC_IMAGE_PROXY           | 默认的浏览器端图片代理                       | url prefix                       | (空)                                                                                                                       |
-| NEXT_PUBLIC_DOUBAN_PROXY          | 默认的浏览器端豆瓣数据代理                   | url prefix                       | (空)                                                                                                                       |
+| NEXT_PUBLIC_IMAGE_PROXY           | 默认图片代理（用户可在设置面板选择预设）     | url prefix                       | (空)                                                                                                                       |
+| NEXT_PUBLIC_DOUBAN_PROXY          | 默认豆瓣数据代理（用户可在设置面板选择预设） | url prefix                       | (空)                                                                                                                       |
 | NEXT_PUBLIC_DISABLE_YELLOW_FILTER | 关闭色情内容过滤                             | true/false                       | false                                                                                                                      |
 
 ## 配置说明
